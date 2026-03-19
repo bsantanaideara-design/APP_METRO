@@ -137,15 +137,16 @@ def visor():
         abort(403)
 
     cfg = REPORTS[tipo]
-    filter_str  = f"{cfg['table']}/{cfg['field']} eq '{id_}'"
+    filter_str = cfg['table'] + '/' + cfg['field'] + " eq '" + id_ + "'"
+    encoded_filter = filter_str.replace(' ', '%20').replace('/', '%2F').replace("'", '%27')
     embed_url = (
-        f"https://app.powerbi.com/reportEmbed"
-        f"?filter={filter_str.replace(' ', '%20').replace('/', '%2F').replace("'", '%27')}"
-        f"&reportId={cfg['reportId']}"
-        f"&groupId={cfg['groupId']}"
-        f"&autoAuth=true"
-        f"&filterPaneEnabled=false"
-        f"&navContentPaneEnabled=false"
+        "https://app.powerbi.com/reportEmbed"
+        "?filter=" + encoded_filter +
+        "&reportId=" + cfg['reportId'] +
+        "&groupId=" + cfg['groupId'] +
+        "&autoAuth=true"
+        "&filterPaneEnabled=false"
+        "&navContentPaneEnabled=false"
     )
 
     return render_template('visor.html',
