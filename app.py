@@ -89,23 +89,26 @@ def index():
 def login():
     error = None
     if request.method == 'POST':
-        usuario = request.form.get('usuario', '').strip()
-        password = request.form.get('password', '').encode()
+        try:
+            usuario = request.form.get('usuario', '').strip()
+            password = request.form.get('password', '').encode()
 
-        with get_db() as conn:
-            row = conn.execute(
-                "SELECT password, informes, activo FROM users WHERE usuario=?",
-                (usuario,)
-            ).fetchone()
+            with get_db() as conn:
+                row = conn.execute(
+                    "SELECT password, informes, activo FROM users WHERE usuario=?",
+                    (usuario,)
+                ).fetchone()
 
-        if row and row['activo'] and bcrypt.checkpw(password, row['password'].encode()):
-            session['usuario'] = usuario
-            session['informes'] = row['informes'].split(',')  # ['CE', 'CT', ...]
-            # Redirigir a la URL original si la había
-            next_url = request.args.get('next')
-            return redirect(next_url or url_for('visor'))
-        else:
-            error = 'Usuario o contraseña incorrectos.'
+            if row and row['activo'] and bcrypt.checkpw(password, row['password'].encode()):
+                session['usuario'] = usuario
+                session['informes'] = row['informes'].split(',')
+                next_url = request.args.get('next')
+                return redirect(next_url or url_for('visor'))
+            else:
+                error = 'Usuario o contraseña incorrectos.'
+        except Exception as e:
+            app.logger.error(f'Error en login: {e}', exc_info=True)
+            error = f'Error interno: {str(e)}'
 
     return render_template('login.html', error=error)
 
