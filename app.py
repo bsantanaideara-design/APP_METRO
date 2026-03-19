@@ -248,6 +248,8 @@ def admin_eliminar(user_id):
     return redirect(url_for('admin'))
 
 
+# Inicializar BD siempre al arrancar (necesario en Render/gunicorn)
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
