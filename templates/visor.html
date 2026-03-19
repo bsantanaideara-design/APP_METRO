@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visor de Cuestionarios · Metro de Madrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rojo: #DA291C;
+    --azul: #003DA5;
+    --gris-oscuro: #1a1a2e;
+    --blanco: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gris-oscuro);
+    color: var(--blanco);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--blanco);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    border-bottom: 4px solid var(--rojo);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 1.2rem; }
+
+  .metro-logo { height: 52px; width: auto; flex-shrink: 0; object-fit: contain; }
+
+  .brand-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--rojo);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .brand-text p {
+    font-size: 0.7rem;
+    color: #666;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .usuario-badge {
+    font-size: 0.78rem;
+    color: #555;
+    font-weight: 500;
+  }
+
+  .btn-logout {
+    background: none;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: #666;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover {
+    border-color: var(--rojo);
+    color: var(--rojo);
+  }
+
+  .btn-admin {
+    background: var(--azul);
+    border: none;
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-admin:hover { background: #0050cc; }
+
+  .status-bar {
+    background: rgba(0,61,165,0.25);
+    padding: 0.45rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.77rem;
+    color: rgba(255,255,255,0.55);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #aaa;
+    flex-shrink: 0;
+  }
+  .status-dot.ok     { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+  .status-dot.error  { background: #f87171; }
+  .status-dot.loading { background: #facc15; animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  #report-iframe {
+    flex: 1;
+    border: none;
+    width: 100%;
+    background: white;
+  }
+
+  .error-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .error-screen svg { width: 56px; height: 56px; opacity: 0.2; }
+
+  .error-screen h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .error-screen p { font-size: 0.85rem; max-width: 340px; line-height: 1.6; }
+
+  footer {
+    background: #111122;
+    padding: 0.55rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.22);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <img src="{{ url_for('static', filename='logo.webp') }}" class="metro-logo" alt="Metro de Madrid">
+    <div class="brand-text">
+      <h1>Metro de Madrid</h1>
+      <p>Visor de Cuestionarios</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="usuario-badge">{{ usuario }}</span>
+    {% if 'CE,CT,LT,VIG,CAC' in ','.join(informes_permitidos) %}
+    <a href="/admin" class="btn-admin">Admin</a>
+    {% endif %}
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</header>
+
+<div class="status-bar">
+  {% if embed_url %}
+  <span class="status-dot loading" id="status-dot"></span>
+  <span id="status-text">Cargando {{ label }} · ID: {{ id_ }} …</span>
+  {% elif error %}
+  <span class="status-dot error"></span>
+  <span>{{ error }}</span>
+  {% else %}
+  <span class="status-dot"></span>
+  <span>Listo</span>
+  {% endif %}
+</div>
+
+{% if embed_url %}
+<iframe id="report-iframe" src="{{ embed_url }}" allowfullscreen
+  onload="document.getElementById('status-dot').className='status-dot ok';
+          document.getElementById('status-text').textContent='✓ Informe cargado · {{ label }} · ID: {{ id_ }}';">
+</iframe>
+{% else %}
+<div class="error-screen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+  </svg>
+  <h2>Sin informe</h2>
+  <p>{{ error or 'Accede desde un enlace con los parámetros tipo e id.' }}</p>
+</div>
+{% endif %}
+
+<footer>
+  <span>Metro de Madrid · Mystery Shopping Dashboard</span>
+  {% if tipo %}<span>{{ tipo }} · ID {{ id_ }}</span>{% endif %}
+</footer>
+
+</body>
+</html>

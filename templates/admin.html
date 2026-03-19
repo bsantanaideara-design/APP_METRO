@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administración · Metro de Madrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --rojo:#DA291C; --azul:#003DA5; --gris-oscuro:#1a1a2e; --blanco:#ffffff; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--gris-oscuro); color:var(--blanco); min-height:100vh; }
+
+  header {
+    background: var(--blanco);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    border-bottom: 4px solid var(--rojo);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .logo-area { display:flex; align-items:center; gap:1.2rem; }
+  .metro-logo { height:52px; width:auto; object-fit:contain; }
+  .brand-text h1 { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:var(--rojo); letter-spacing:2px; line-height:1; }
+  .brand-text p { font-size:0.7rem; color:#666; letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
+
+  .header-right { display:flex; align-items:center; gap:1rem; }
+  .btn-back { border:1.5px solid #ddd; border-radius:6px; padding:0.3rem 0.8rem; font-size:0.78rem; color:#666; text-decoration:none; transition:all 0.2s; }
+  .btn-back:hover { border-color:var(--azul); color:var(--azul); }
+
+  .content { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+
+  h2 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:2px; color:rgba(255,255,255,0.8); margin-bottom:1.5rem; }
+
+  /* ── Nuevo usuario ── */
+  .card {
+    background: #22223a;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 3px solid var(--rojo);
+  }
+
+  .card h3 { font-size:0.85rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:1.2rem; }
+
+  .form-row { display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end; }
+
+  .field { display:flex; flex-direction:column; gap:0.3rem; }
+  .field label { font-size:0.72rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+
+  input[type=text], input[type=password] {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius:6px;
+    padding: 0.5rem 0.8rem;
+    color: var(--blanco);
+    font-family:'DM Sans',sans-serif;
+    font-size:0.9rem;
+    outline:none;
+    transition: border-color 0.2s;
+    width: 160px;
+  }
+
+  input[type=text]:focus, input[type=password]:focus { border-color:var(--rojo); }
+
+  .checkboxes { display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .checkboxes label {
+    display:flex; align-items:center; gap:0.3rem;
+    font-size:0.8rem; font-weight:500;
+    color:rgba(255,255,255,0.7);
+    cursor:pointer;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius:4px;
+    padding: 0.25rem 0.6rem;
+    transition: all 0.15s;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .checkboxes label:has(input:checked) { background:rgba(0,61,165,0.3); border-color:rgba(0,61,165,0.6); color:white; }
+  .checkboxes input[type=checkbox] { width:14px; height:14px; accent-color:var(--azul); }
+
+  .btn-submit {
+    background: var(--rojo);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 1.2rem;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.88rem;
+    font-weight:600;
+    cursor:pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-submit:hover { background:#b81e13; }
+  .btn-submit.secundario { background:rgba(255,255,255,0.1); }
+  .btn-submit.secundario:hover { background:rgba(255,255,255,0.2); }
+  .btn-submit.peligro { background:rgba(218,41,28,0.2); border:1px solid rgba(218,41,28,0.4); color:#ff7b71; }
+  .btn-submit.peligro:hover { background:rgba(218,41,28,0.35); }
+
+  /* ── Tabla de usuarios ── */
+  table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+  thead th {
+    text-align:left;
+    font-size:0.7rem;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.4);
+    padding:0.6rem 1rem;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  tbody tr { border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s; }
+  tbody tr:hover { background:rgba(255,255,255,0.03); }
+  tbody td { padding:0.8rem 1rem; vertical-align:middle; }
+
+  .tag {
+    display:inline-block;
+    background:rgba(0,61,165,0.25);
+    border:1px solid rgba(0,61,165,0.4);
+    border-radius:4px;
+    padding:0.1rem 0.5rem;
+    font-size:0.75rem;
+    font-weight:600;
+    margin:2px;
+    color:rgba(255,255,255,0.8);
+  }
+
+  .badge-activo { color:#4ade80; font-size:0.75rem; font-weight:600; }
+  .badge-inactivo { color:#f87171; font-size:0.75rem; font-weight:600; }
+
+  details summary { cursor:pointer; color:rgba(255,255,255,0.5); font-size:0.8rem; list-style:none; }
+  details summary::-webkit-details-marker { display:none; }
+  details[open] { background:rgba(255,255,255,0.03); border-radius:8px; padding:1rem; margin-top:0.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <img src="{{ url_for('static', filename='logo.webp') }}" class="metro-logo" alt="Metro de Madrid">
+    <div class="brand-text">
+      <h1>Metro de Madrid</h1>
+      <p>Administración de usuarios</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span style="font-size:0.78rem;color:#555;">{{ usuario }}</span>
+    <a href="/visor" class="btn-back">← Volver al visor</a>
+  </div>
+</header>
+
+<div class="content">
+
+  <!-- Nuevo usuario -->
+  <h2>Gestión de Usuarios</h2>
+  <div class="card">
+    <h3>Añadir nuevo usuario</h3>
+    <form method="POST" action="/admin/nuevo">
+      <div class="form-row">
+        <div class="field">
+          <label>Usuario</label>
+          <input type="text" name="usuario" placeholder="nombre.usuario" required>
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+        <div class="field">
+          <label>Informes permitidos</label>
+          <div class="checkboxes">
+            {% for inf in todos_informes %}
+            <label><input type="checkbox" name="informes" value="{{ inf }}"> {{ inf }}</label>
+            {% endfor %}
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Crear usuario</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de usuarios -->
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Informes permitidos</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td><strong>{{ u.usuario }}</strong></td>
+        <td>
+          {% for inf in u.informes.split(',') %}
+          <span class="tag">{{ inf }}</span>
+          {% endfor %}
+        </td>
+        <td>
+          {% if u.activo %}
+          <span class="badge-activo">● Activo</span>
+          {% else %}
+          <span class="badge-inactivo">● Inactivo</span>
+          {% endif %}
+        </td>
+        <td>
+          <details>
+            <summary>✎ Editar</summary>
+            <form method="POST" action="/admin/editar/{{ u.id }}" style="margin-top:0.8rem;">
+              <div class="form-row">
+                <div class="field">
+                  <label>Nueva contraseña (dejar vacío para no cambiar)</label>
+                  <input type="password" name="password" placeholder="••••••••">
+                </div>
+                <div class="field">
+                  <label>Informes</label>
+                  <div class="checkboxes">
+                    {% for inf in todos_informes %}
+                    <label>
+                      <input type="checkbox" name="informes" value="{{ inf }}"
+                        {% if inf in u.informes.split(',') %}checked{% endif %}>
+                      {{ inf }}
+                    </label>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Activo</label>
+                  <label style="font-size:0.9rem;text-transform:none;letter-spacing:0;">
+                    <input type="checkbox" name="activo" {% if u.activo %}checked{% endif %}> Habilitado
+                  </label>
+                </div>
+                <div style="display:flex;gap:0.5rem;">
+                  <button type="submit" class="btn-submit secundario">Guardar</button>
+                </div>
+              </div>
+            </form>
+            {% if u.usuario != 'admin' %}
+            <form method="POST" action="/admin/eliminar/{{ u.id }}" style="margin-top:0.5rem;"
+                  onsubmit="return confirm('¿Eliminar usuario {{ u.usuario }}?')">
+              <button type="submit" class="btn-submit peligro">Eliminar usuario</button>
+            </form>
+            {% endif %}
+          </details>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+</body>
+</html>
